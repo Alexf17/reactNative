@@ -1,10 +1,32 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { RegistrationScreen } from "./Screens/RegistrationScreen/RegistrationScreen";
+import { useState, useCallback } from "react";
+import { LoginScreen } from "./Screens/LoginScreen/LoginScreen";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    "Roboto-Regular": require("./assets/fonts/Roboto-Regular.ttf"),
+    "Roboto-Medium": require("./assets/fonts/Roboto-Medium.ttf"),
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start on y app!</Text>
+    <View style={styles.container} onLayout={onLayoutRootView}>
+      <RegistrationScreen />
+      {/* <LoginScreen /> */}
       <StatusBar style="auto" />
     </View>
   );
@@ -13,96 +35,5 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
-
-// import * as Font from "expo-font";
-// import { AppLoading } from "expo";
-// import React, { useState } from "react";
-// import {
-//   StyleSheet,
-//   View,
-//   TextInput,
-//   TouchableWithoutFeedback,
-//   Keyboard,
-//   KeyboardAvoidingView,
-//   Platform,
-//   Alert,
-//   Button,
-// } from "react-native";
-
-// const loadFonts = async () => {
-//   await Font.loadAsync({
-//     "Roboto-Regulat": require("./assets/fonts/Roboto/Roboto-Regular.ttf"),
-//     "Roboto-Bold": require("./assets/fonts/Roboto/Roboto-Bold.ttf"),
-//   });
-// };
-
-// export default function App() {
-//   const [name, setName] = useState("");
-//   const [password, setPassword] = useState("");
-
-//   const nameHandler = (text) => setName(text);
-//   const passwordHandler = (text) => setPassword(text);
-
-//   const onLogin = () => {
-//     Alert.alert("Credentials", `${name} + ${password}`);
-//   };
-// export default () => {
-// const [isReady, setIsReady] = useState(false)
-// if (!isReady) {
-//     return <AppLoading startAsync={loadFonts} onFinish={() => setIsReady(true)}/>
-// }
-//   return (
-//     <View style={styles.container}>
-//       <View style={styles.buttonContainer}>
-//         <Button onPress={this._onPressButton} title="Press Me" />
-//       </View>
-//     </View>
-//   );
-// };
-//   return (
-//     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-//       <View style={styles.container}>
-//         <KeyboardAvoidingView
-//           behavior={Platform.OS == "ios" ? "padding" : "height"}
-//         >
-//           <TextInput
-//             value={name}
-//             onChangeText={nameHandler}
-//             placeholder="Username"
-//             style={styles.input}
-//           />
-//           <TextInput
-//             value={password}
-//             onChangeText={passwordHandler}
-//             placeholder="Password"
-//             secureTextEntry={true}
-//             style={styles.input}
-//           />
-//           <Button title={"Login"} style={styles.input} onPress={onLogin} />
-//         </KeyboardAvoidingView>
-//       </View>
-//     </TouchableWithoutFeedback>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     alignItems: "center",
-//     justifyContent: "center",
-//     backgroundColor: "#ecf0f1",
-//   },
-//   input: {
-//     width: 200,
-//     height: 44,
-//     padding: 10,
-//     borderWidth: 1,
-//     borderColor: "black",
-//     marginBottom: 10,
-//   },
-// });
