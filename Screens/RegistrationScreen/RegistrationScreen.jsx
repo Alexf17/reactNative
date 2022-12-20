@@ -13,21 +13,31 @@ import {
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 
+const initialState = {
+  login: "",
+  email: "",
+  password: "",
+};
+
 export function RegistrationScreen() {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [inFocus, setInFocus] = useState(false);
+  const [userInfo, setUserInfo] = useState(initialState);
+  const [isHiddenPassword, setIsHiddenPassword] = useState(true);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
       () => {
         setIsShowKeyboard(true);
+        setInFocus(true);
       }
     );
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
       () => {
         setIsShowKeyboard(false);
+        setInFocus(false);
       }
     );
     return () => {
@@ -38,12 +48,25 @@ export function RegistrationScreen() {
 
   const keyboardHide = () => {
     setIsShowKeyboard(false);
+    setInFocus(false);
     Keyboard.dismiss();
   };
 
   const trackingFocus = () => {
     setIsShowKeyboard(true);
     setInFocus(true);
+  };
+  const submitForm = () => {
+    if (!userInfo.login || !userInfo.email || !userInfo.password) {
+      alert("Кажется забыли заполнить одно из полей");
+      return;
+    }
+    console.log(userInfo);
+    setUserInfo(initialState);
+  };
+
+  const toggleShowPassword = () => {
+    setIsHiddenPassword(!isHiddenPassword);
   };
 
   const isAvatarAdd = false;
@@ -83,34 +106,63 @@ export function RegistrationScreen() {
             >
               <Text style={styles.title}>Регистрация</Text>
               <TextInput
-                style={styles.input}
+                // style={styles.input}
+                style={{
+                  ...styles.input,
+                  borderColor: inFocus ? "#FF6C00" : "#E8E8E8",
+                }}
+                selectionColor="#FF6C00"
                 placeholder="Логин"
                 onFocus={trackingFocus}
+                value={userInfo.login}
+                onChangeText={(value) =>
+                  setUserInfo((prevState) => ({ ...prevState, login: value }))
+                }
               />
               <TextInput
-                style={styles.input}
+                style={{
+                  ...styles.input,
+                  borderColor: inFocus ? "#FF6C00" : "#E8E8E8",
+                }}
                 placeholder="Адрес электронной почты"
                 onFocus={trackingFocus}
+                value={userInfo.email}
+                selectionColor="#FF6C00"
+                onChangeText={(value) =>
+                  setUserInfo((prevState) => ({ ...prevState, email: value }))
+                }
               />
               <View style={styles.passwordInput}>
                 <TextInput
-                  style={styles.input}
+                  style={{
+                    ...styles.input,
+                    borderColor: inFocus ? "#FF6C00" : "#E8E8E8",
+                  }}
                   placeholder="Пароль"
-                  secureTextEntry={true}
+                  secureTextEntry={isHiddenPassword}
                   onFocus={trackingFocus}
+                  value={userInfo.password}
+                  selectionColor="#FF6C00"
+                  onChangeText={(value) =>
+                    setUserInfo((prevState) => ({
+                      ...prevState,
+                      password: value,
+                    }))
+                  }
                 />
                 <TouchableOpacity
                   activeOpacity={0.7}
                   style={styles.btnShowPass}
+                  onPress={toggleShowPassword}
                 >
-                  <Text>Показать</Text>
+                  <Text>{isHiddenPassword ? "Показать" : "Скрыть"}</Text>
                 </TouchableOpacity>
               </View>
             </View>
             {!isShowKeyboard && (
               <>
                 <View style={styles.btnSignUp}>
-                  <TouchableOpacity activeOpacity={0.7}>
+                  <TouchableOpacity activeOpacity={0.7} onPress={submitForm}>
                     <Text style={styles.btnSignUpText}>Зарегистрироваться</Text>
                   </TouchableOpacity>
                 </View>
