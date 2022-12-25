@@ -1,12 +1,22 @@
+import { useCallback } from "react";
+
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View } from "react-native";
-import { RegistrationScreen } from "./Screens/RegistrationScreen/RegistrationScreen";
-import { useState, useCallback } from "react";
-import { LoginScreen } from "./Screens/LoginScreen/LoginScreen";
-import { useFonts } from "expo-font";
+import { View } from "react-native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
+
 import * as SplashScreen from "expo-splash-screen";
+import { useFonts } from "expo-font";
+
+import { RegistrationScreen } from "./Screens/AuthScreens/RegistrationScreen/RegistrationScreen";
+import { LoginScreen } from "./Screens/AuthScreens/LoginScreen/LoginScreen";
+import { Home } from "./Screens/Home/Home";
 
 SplashScreen.preventAutoHideAsync();
+
+const AuthStack = createNativeStackNavigator();
+
+// const isAuth = false;
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -24,16 +34,49 @@ export default function App() {
     return null;
   }
   return (
-    <View style={styles.container} onLayout={onLayoutRootView}>
-      {/* <RegistrationScreen /> */}
-      <LoginScreen />
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <AuthStack.Navigator initialRouteName="LoginScreen">
+          <AuthStack.Screen
+            options={{ headerShown: false }}
+            name="Home"
+            component={Home}
+          />
+          <AuthStack.Screen
+            options={{ headerShown: false }}
+            name="LoginScreen"
+            component={LoginScreen}
+          />
+          <AuthStack.Screen
+            options={{ headerShown: false }}
+            name="RegistrationScreen"
+            component={RegistrationScreen}
+          />
+
+          {/* {isAuth ? (
+            <AuthStack.Screen
+              options={{ headerShown: false }}
+              name="Home"
+              component={Home}
+            />
+          ) : (
+            <>
+              <AuthStack.Screen
+                options={{ headerShown: false }}
+                name="LoginScreen"
+                component={LoginScreen}
+              />
+              <AuthStack.Screen
+                options={{ headerShown: false }}
+                name="RegistrationScreen"
+                component={RegistrationScreen}
+              />
+            </>
+          )} */}
+        </AuthStack.Navigator>
+
+        <StatusBar style="auto" />
+      </View>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

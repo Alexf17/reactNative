@@ -14,11 +14,12 @@ import {
 import { AntDesign } from "@expo/vector-icons";
 
 const initialState = {
+  login: "",
   email: "",
   password: "",
 };
 
-export function LoginScreen() {
+export function RegistrationScreen({ navigation }) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [inFocus, setInFocus] = useState(false);
   const [userInfo, setUserInfo] = useState(initialState);
@@ -68,21 +69,56 @@ export function LoginScreen() {
     setIsHiddenPassword(!isHiddenPassword);
   };
 
+  const isAvatarAdd = false;
+
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <Image
           style={styles.image}
-          source={require("../../assets/images/PhotoBG.jpg")}
+          source={require("../../../assets/images/PhotoBG.jpg")}
         />
         <View style={styles.wrap}>
           <KeyboardAvoidingView
             behavior={Platform.OS == "ios" ? "padding" : "height"}
           >
+            <View style={styles.avatar}>
+              {isAvatarAdd ? (
+                <View style={styles.photoBtn}>
+                  <TouchableOpacity>
+                    <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View>
+                  <Image
+                    style={styles.avatarPhoto}
+                    source={require("../../../assets/images/Rectangle22.png")}
+                  />
+                  <TouchableOpacity style={styles.photoBtn}>
+                    <AntDesign name="closecircleo" size={25} color="#E8E8E8" />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
             <View
-              style={{ ...styles.form, marginBottom: isShowKeyboard ? 12 : 43 }}
+              style={{ ...styles.form, marginBottom: isShowKeyboard ? 22 : 43 }}
             >
-              <Text style={styles.title}>Войти</Text>
+              <Text style={styles.title}>Регистрация</Text>
+              <TextInput
+                // style={styles.input}
+                style={{
+                  ...styles.input,
+                  borderColor: inFocus ? "#FF6C00" : "#E8E8E8",
+                }}
+                selectionColor="#FF6C00"
+                placeholder="Логин"
+                onFocus={trackingFocus}
+                value={userInfo.login}
+                onChangeText={(value) =>
+                  setUserInfo((prevState) => ({ ...prevState, login: value }))
+                }
+              />
               <TextInput
                 style={{
                   ...styles.input,
@@ -125,15 +161,18 @@ export function LoginScreen() {
             </View>
             {!isShowKeyboard && (
               <>
-                <View style={styles.btnSignIn}>
+                <View style={styles.btnSignUp}>
                   <TouchableOpacity activeOpacity={0.7} onPress={submitForm}>
-                    <Text style={styles.btnSignInText}>Войти</Text>
+                    <Text style={styles.btnSignUpText}>Зарегистрироваться</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={styles.btnHasAccount}>
-                  <TouchableOpacity activeOpacity={0.7}>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => navigation.navigate("LoginScreen")}
+                  >
                     <Text style={styles.btnHasAccountText}>
-                      Нет аккаунта ? Зарегистрироваться
+                      Уже есть аккаунт? Войти
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -164,7 +203,7 @@ const styles = StyleSheet.create({
     position: "relative",
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 16,
-    paddingTop: 32,
+    paddingTop: 92,
     borderRadius: 25,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
@@ -201,7 +240,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#1B4371",
   },
-  btnSignIn: {
+  btnSignUp: {
     padding: 16,
     height: 51,
     borderRadius: 100,
@@ -209,7 +248,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  btnSignInText: {
+  btnSignUpText: {
     fontFamily: "Roboto-Regular",
     color: "#FFFFFF",
     fontSize: 16,
