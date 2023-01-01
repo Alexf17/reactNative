@@ -16,7 +16,7 @@ SplashScreen.preventAutoHideAsync();
 
 const AuthStack = createNativeStackNavigator();
 
-// const isAuth = false;
+const isAuth = false;
 
 export default function App() {
   const [fontsLoaded] = useFonts({

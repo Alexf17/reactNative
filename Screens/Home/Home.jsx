@@ -3,16 +3,16 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 
-import { PostsScreen } from "../MainScreens/PostsScreen/PostsScreen";
+import { PostsScreen } from "../MainScreens/PostsScreen";
 import { CreatePostsScreen } from "../MainScreens/CreatePostsScreen/CreatePostsScreen";
 import { ProfileScreen } from "../MainScreens/ProfileScreen/ProfileScreen";
 
 const MainTab = createBottomTabNavigator();
 
-export function Home() {
+export function Home({ navigation }) {
   return (
     <MainTab.Navigator
-      initialRouteName="Posts"
+      initialRouteName="PostsScreen"
       screenOptions={{
         // tabBarShowLabel: true,
         tabBarShowLabel: false,
@@ -27,24 +27,16 @@ export function Home() {
       }}
     >
       <MainTab.Screen
-        name="Posts"
+        name="PostsScreen"
         component={PostsScreen}
         options={{
-          title: "All publications",
+          headerShown: false,
           tabBarIcon: ({ focused, size, color }) => (
             <TouchableOpacity>
               <Feather name="grid" size={size} color={color} />
             </TouchableOpacity>
           ),
-          headerRight: () => (
-            <TouchableOpacity
-              style={{ marginRight: 10, marginBottom: 10 }}
-              activeOpacity={0.7}
-              onPress={() => navigation.popToTop()}
-            >
-              <Feather name="log-out" size={24} color="#BDBDBD" />
-            </TouchableOpacity>
-          ),
+
           tabBarItemStyle: {
             marginLeft: 15,
             marginRight: 15,
@@ -58,6 +50,14 @@ export function Home() {
         name="Create"
         component={CreatePostsScreen}
         options={{
+          headerLeft: () => (
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate("DefaultScreen")}
+            >
+              <Feather name="arrow-left" size={24} color="#212121CC" />
+            </TouchableOpacity>
+          ),
           title: "Create post",
           tabBarIcon: ({ focused, size, color }) => (
             <TouchableOpacity>
