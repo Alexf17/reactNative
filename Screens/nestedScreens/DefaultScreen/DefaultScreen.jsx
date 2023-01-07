@@ -17,7 +17,7 @@ import { useSelector } from "react-redux";
 
 export const DefaultScreen = ({ route, navigation }) => {
   const [posts, setPosts] = useState([]);
-  // const [likes, setLikes] = useState(null);
+  // const [isLiked, setIsLiked] = useState(false);
   const { login, email, avatar } = useSelector((state) => state.auth);
 
   const getAllPost = async () => {
@@ -29,22 +29,14 @@ export const DefaultScreen = ({ route, navigation }) => {
       );
   };
 
-  // useEffect(() => {
-  //   getAllPost();
-  // }, []);
-
   const onLikes = async (item) => {
     let likes = item.likes + 1;
     await db
       .firestore()
       .collection("posts")
       .doc(item.id)
-      .set({ ...item, likes, isLiked: true });
+      .set({ ...item, likes, likedId: item.userId });
   };
-
-  // const sendInfoToComments = () => {
-  //   navigation.navigate("Comments", { item });
-  // };
 
   useEffect(() => {
     getAllPost();
@@ -100,7 +92,7 @@ export const DefaultScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  disabled={item.isLiked}
+                  // disabled={item.isLiked}
                   style={styles.comments}
                   onPress={() => onLikes(item)}
                 >

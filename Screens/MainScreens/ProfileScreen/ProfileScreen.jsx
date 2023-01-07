@@ -189,7 +189,7 @@ export const ProfileScreen = ({ navigation }) => {
                           color: "#212121",
                         }}
                       >
-                        0
+                        {item.amount}
                       </Text>
                     </TouchableOpacity>
 
@@ -197,16 +197,16 @@ export const ProfileScreen = ({ navigation }) => {
                       <Feather
                         name="thumbs-up"
                         size={24}
-                        color={likes ? "#FF6C00" : "#BDBDBD"}
+                        color={item.likes ? "#FF6C00" : "#BDBDBD"}
                       />
 
                       <Text
                         style={{
                           ...styles.commentsCount,
-                          color: likes ? "#212121" : "#BDBDBD",
+                          color: item.likes ? "#212121" : "#BDBDBD",
                         }}
                       >
-                        {likes ? likes : 0}
+                        {item.likes ? item.likes : 0}
                       </Text>
                     </TouchableOpacity>
                   </View>

@@ -49,7 +49,6 @@ export const CommentsScreen = ({ route }) => {
       .doc(postId)
       .collection("comments")
       .add({ avatar, comment, login, date });
-    //  .add({ comment, login, date });
 
     await db
       .firestore()

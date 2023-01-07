@@ -79,7 +79,6 @@ export const CreatePostsScreen = ({ navigation }) => {
     return processedPhoto;
   };
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -96,12 +95,12 @@ export const CreatePostsScreen = ({ navigation }) => {
     const createPost = await db.firestore().collection("posts").add({
       photo,
       photoTitle,
-      photoPlace,
+      place,
       location,
       userId,
       login,
       likes: 0,
-      isLiked: false,
+      likeId: "",
     });
     return createPost;
   };
