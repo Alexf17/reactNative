@@ -1,3 +1,4 @@
+import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import {
   View,
@@ -12,11 +13,15 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+
+import { authSignUpUser } from "../../../redux/auth/authOperations";
 
 const initialState = {
   login: "",
   email: "",
   password: "",
+  avatar: "",
 };
 
 export function RegistrationScreen({ navigation }) {
@@ -24,6 +29,8 @@ export function RegistrationScreen({ navigation }) {
   const [inFocus, setInFocus] = useState(false);
   const [userInfo, setUserInfo] = useState(initialState);
   const [isHiddenPassword, setIsHiddenPassword] = useState(true);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -61,15 +68,40 @@ export function RegistrationScreen({ navigation }) {
       alert("Кажется забыли заполнить одно из полей");
       return;
     }
-    console.log(userInfo);
+
+    dispatch(authSignUpUser(userInfo));
     setUserInfo(initialState);
+    // navigation.navigate("Home");
   };
 
   const toggleShowPassword = () => {
     setIsHiddenPassword(!isHiddenPassword);
   };
 
-  const isAvatarAdd = false;
+  const addAvatar = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setUserInfo((prevState) => ({
+        ...prevState,
+        avatar: result.assets[0].uri,
+      }));
+    }
+  };
+
+  const deleteAvatar = () => {
+    setUserInfo((prevState) => ({
+      ...prevState,
+      avatar: "",
+    }));
+  };
 
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
@@ -83,20 +115,29 @@ export function RegistrationScreen({ navigation }) {
             behavior={Platform.OS == "ios" ? "padding" : "height"}
           >
             <View style={styles.avatar}>
-              {isAvatarAdd ? (
-                <View style={styles.photoBtn}>
-                  <TouchableOpacity>
-                    <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
+              {userInfo.avatar ? (
+                <View>
+                  <Image
+                    source={{ uri: userInfo.avatar }}
+                    style={styles.avatarPhoto}
+                  />
+                  <TouchableOpacity
+                    style={styles.photoBtn}
+                    onPress={deleteAvatar}
+                  >
+                    <AntDesign name="closecircleo" size={25} color="#E8E8E8" />
+                    {/* <AntDesign name="pluscircleo" size={25} color="#FF6C00" /> */}
                   </TouchableOpacity>
                 </View>
               ) : (
                 <View>
                   <Image
                     style={styles.avatarPhoto}
-                    source={require("../../../assets/images/Rectangle22.png")}
+                    source={require("../../../assets/images/profile-avatar.png")}
                   />
-                  <TouchableOpacity style={styles.photoBtn}>
-                    <AntDesign name="closecircleo" size={25} color="#E8E8E8" />
+                  <TouchableOpacity style={styles.photoBtn} onPress={addAvatar}>
+                    {/* <AntDesign name="closecircleo" size={25} color="#E8E8E8" /> */}
+                    <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
                   </TouchableOpacity>
                 </View>
               )}
@@ -266,13 +307,16 @@ const styles = StyleSheet.create({
   },
   avatar: {
     position: "absolute",
-    zIndex: 5,
     top: -150,
-    right: 130,
-    height: 120,
-    width: 120,
-    backgroundColor: "#F6F6F6",
-    borderRadius: 16,
+    left: "35%",
+    // position: "absolute",
+    // zIndex: 5,
+    // top: -150,
+    // right: 130,
+    // height: 120,
+    // width: 120,
+    // backgroundColor: "#F6F6F6",
+    // borderRadius: 16,
   },
   photoBtn: {
     position: "absolute",
@@ -283,5 +327,8 @@ const styles = StyleSheet.create({
   },
   avatarPhoto: {
     position: "relative",
+    width: 120,
+    height: 120,
+    borderRadius: 16,
   },
 });

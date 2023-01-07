@@ -50,6 +50,7 @@ export function Home({ navigation }) {
         name="Create"
         component={CreatePostsScreen}
         options={{
+          tabBarStyle: { display: "none" },
           headerLeft: () => (
             <TouchableOpacity
               activeOpacity={0.7}

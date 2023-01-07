@@ -1,3 +1,9 @@
+import { useEffect, useState } from "react";
+
+import db from "../../../firebase/config.js";
+
+import { Feather } from "@expo/vector-icons";
+
 import {
   View,
   Text,
@@ -7,43 +13,52 @@ import {
   Image,
   FlatList,
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
-import { Feather } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 export const DefaultScreen = ({ route, navigation }) => {
   const [posts, setPosts] = useState([]);
-  const [likes, setLikes] = useState(null);
+  // const [likes, setLikes] = useState(null);
+  const { login, email, avatar } = useSelector((state) => state.auth);
 
-  const isAvatarAdd = false;
+  const getAllPost = async () => {
+    await db
+      .firestore()
+      .collection("posts")
+      .onSnapshot((data) =>
+        setPosts(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+      );
+  };
+
+  // useEffect(() => {
+  //   getAllPost();
+  // }, []);
+
+  const onLikes = async (item) => {
+    let likes = item.likes + 1;
+    await db
+      .firestore()
+      .collection("posts")
+      .doc(item.id)
+      .set({ ...item, likes, isLiked: true });
+  };
+
+  // const sendInfoToComments = () => {
+  //   navigation.navigate("Comments", { item });
+  // };
 
   useEffect(() => {
-    if (route.params) {
-      setPosts((prevState) => [...prevState, route.params]);
-      // console.log(route.key);
-    }
-  }, [route.params]);
-
-  const onLikes = () => {
-    setLikes((prevState) => prevState + 1);
-  };
-
-  const sendInfoToComments = () => {
-    navigation.navigate("Comments", route);
-  };
+    getAllPost();
+  }, []);
 
   return (
     <View style={styles.container}>
       <View style={styles.profile}>
         <View>
-          <Image
-            style={styles.avatarPhoto}
-            source={require("../../../assets/images/Rectangle22.png")}
-          />
+          <Image style={styles.avatarPhoto} source={{ uri: avatar }} />
         </View>
         <View style={styles.profileInfo}>
-          <Text style={styles.name}>example</Text>
-          <Text style={styles.email}>example@example.com</Text>
+          <Text style={styles.name}>{login}</Text>
+          <Text style={styles.email}>{email}</Text>
         </View>
       </View>
       <FlatList
@@ -51,7 +66,6 @@ export const DefaultScreen = ({ route, navigation }) => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={{ marginBottom: 32 }}>
-            {console.log(item.photo)}
             <Image source={{ uri: item.photo }} style={styles.photo} />
             <Text>{item.photoTitle}</Text>
             <View style={styles.infoWrap}>
@@ -65,7 +79,7 @@ export const DefaultScreen = ({ route, navigation }) => {
                 <TouchableOpacity
                   style={{ ...styles.comments, marginRight: 24 }}
                   onPress={() => {
-                    navigation.navigate("Comments"), sendInfoToComments();
+                    navigation.navigate("Comments", { item });
                   }}
                 >
                   <Feather
@@ -81,30 +95,36 @@ export const DefaultScreen = ({ route, navigation }) => {
                       color: "#212121",
                     }}
                   >
-                    0
+                    {item.amount}
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.comments} onPress={onLikes}>
+                <TouchableOpacity
+                  disabled={item.isLiked}
+                  style={styles.comments}
+                  onPress={() => onLikes(item)}
+                >
                   <Feather
                     name="thumbs-up"
                     size={24}
-                    color={likes ? "#FF6C00" : "#BDBDBD"}
+                    color={item.likes ? "#FF6C00" : "#BDBDBD"}
                   />
 
                   <Text
                     style={{
                       ...styles.commentsCount,
-                      color: likes ? "#212121" : "#BDBDBD",
+                      color: item.likes ? "#212121" : "#BDBDBD",
                     }}
                   >
-                    {likes ? likes : 0}
+                    {item.likes ? item.likes : 0}
                   </Text>
                 </TouchableOpacity>
               </View>
               <TouchableOpacity
                 style={styles.place}
-                onPress={() => navigation.navigate("Map")}
+                onPress={() =>
+                  navigation.navigate("Map", { location: item.location })
+                }
               >
                 <Feather name="map-pin" size={24} color="#BDBDBD" />
                 <Text style={styles.placeName}>{item.place}</Text>

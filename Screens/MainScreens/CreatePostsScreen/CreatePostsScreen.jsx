@@ -13,6 +13,10 @@ import { MaterialIcons, Feather } from "@expo/vector-icons";
 import { Camera, CameraType } from "expo-camera";
 import * as Location from "expo-location";
 
+import db from "../../../firebase/config";
+import { useSelector } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
+
 export const CreatePostsScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [snap, setSnap] = useState(null);
@@ -22,6 +26,7 @@ export const CreatePostsScreen = ({ navigation }) => {
   const [photoTitle, setPhotoTitle] = useState("");
   const [place, setPlace] = useState("");
   const [checking, setChecking] = useState(false);
+  const { userId, login } = useSelector((state) => state.auth);
 
   useEffect(() => {
     (async () => {
@@ -51,20 +56,61 @@ export const CreatePostsScreen = ({ navigation }) => {
     setLocation(location.coords);
     checkingInputs();
   };
+
   const checkingInputs = () => {
     if (photo && location && photoTitle && place) {
       setChecking(true);
     }
   };
 
+  const uploadPhotoToServer = async () => {
+    const response = await fetch(photo);
+    const file = await response.blob();
+    const uniquePostId = Date.now().toString();
+
+    await db.storage().ref(`postImage/${uniquePostId}`).put(file);
+
+    const processedPhoto = await db
+      .storage()
+      .ref("postImage")
+      .child(uniquePostId)
+      .getDownloadURL();
+
+    return processedPhoto;
+  };
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setPhoto(result.assets[0].uri);
+    }
+  };
+
+  const uploadPostToServer = async () => {
+    const photo = await uploadPhotoToServer();
+    const createPost = await db.firestore().collection("posts").add({
+      photo,
+      photoTitle,
+      photoPlace,
+      location,
+      userId,
+      login,
+      likes: 0,
+      isLiked: false,
+    });
+    return createPost;
+  };
+
   const sendPhoto = () => {
     if (checking) {
-      navigation.navigate("DefaultScreen", {
-        photo,
-        location,
-        photoTitle,
-        place,
-      });
+      navigation.navigate("DefaultScreen");
+      uploadPostToServer();
+      // uploadPhotoToServer();
       resetData();
     } else {
       alert("не все поля заполнены");
@@ -80,7 +126,7 @@ export const CreatePostsScreen = ({ navigation }) => {
 
   const keyboardHide = () => {
     setIsShowKeyboard(false);
-    setInFocus(false);
+    // setInFocus(false);
     Keyboard.dismiss();
   };
   const trackingFocus = () => {
@@ -116,10 +162,15 @@ export const CreatePostsScreen = ({ navigation }) => {
             </View>
           )}
           <TouchableOpacity
-            style={{ marginTop: 8, marginBottom: 48 }}
+            style={{ marginTop: 8, marginBottom: 23 }}
             activeOpacity={0.7}
+            onPress={pickImage}
           >
-            <Text style={styles.text}>"Загрузить фото"</Text>
+            {!photo ? (
+              <Text style={styles.text}>"Загрузить фото"</Text>
+            ) : (
+              <Text style={styles.text}>"Изменить фото"</Text>
+            )}
           </TouchableOpacity>
           <View style={styles.inputWrap}>
             <TextInput

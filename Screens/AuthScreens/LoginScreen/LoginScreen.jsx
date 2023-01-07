@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { authSignInUser } from "../../../redux/auth/authOperations";
 import {
   View,
   Text,
@@ -12,6 +13,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
 
 const initialState = {
   email: "",
@@ -23,6 +25,8 @@ export function LoginScreen({ navigation }) {
   const [inFocus, setInFocus] = useState(false);
   const [userInfo, setUserInfo] = useState(initialState);
   const [isHiddenPassword, setIsHiddenPassword] = useState(true);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -60,9 +64,10 @@ export function LoginScreen({ navigation }) {
       alert("Кажется забыли заполнить одно из полей");
       return;
     }
-    console.log(userInfo);
+
     setUserInfo(initialState);
-    navigation.navigate("Home");
+    // navigation.navigate("Home");
+    dispatch(authSignInUser(userInfo));
   };
 
   const toggleShowPassword = () => {
